@@ -1,8 +1,17 @@
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap";
-import { SplitText } from "gsap/all"
+import { SplitText, ScrollTrigger } from "gsap/all"
+import { useRef } from "react";
+import { useMediaQuery } from "react-responsive";
+
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+
+    const isMobile = useMediaQuery({ maxWidth: 767 })
+
     useGSAP(() => {
         const heroSplit = SplitText.create('.title', { type: "chars, words" });
         const paragraphSplit = SplitText.create('.subtitle', { type: "lines" });
@@ -35,6 +44,32 @@ const Hero = () => {
         })
             .to('.right-leaf', { y: 200 }, 0)
             .to('.left-leaf', { y: -200 }, 0)
+
+        const startValue = isMobile ? 'top 50%' : 'center 60%';
+        const endValue = isMobile ? '120% top' : 'bottom top';
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: "video",
+                start: startValue,
+                end: endValue,
+                scrub: 1.5, // Smoother scrubbing with slight delay
+                pin: true
+            }
+        })
+
+        const videoEl = videoRef.current;
+        if (videoEl) {
+            // use the correct event name and capture the element so TypeScript knows it's not null
+            videoEl.onloadedmetadata = () => {
+                tl.to(videoEl, {
+                    currentTime: videoEl.duration,
+                    ease: "none" // Linear easing for video scrubbing
+                })
+            }
+        }
+        
+
     }, [])
     return (
         <>
@@ -66,6 +101,22 @@ const Hero = () => {
                     </div>
                 </div>
             </section>
+            <div className="video absolute inset-0">
+                <video
+                    ref={videoRef}
+                    src="/videos/output-1.mp4"
+                    muted
+                    playsInline
+                    preload="auto"
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                    }}
+                />
+
+
+            </div>
         </>
     )
 }
