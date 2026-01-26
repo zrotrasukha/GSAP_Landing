@@ -60,7 +60,6 @@ const Hero = () => {
 
         const videoEl = videoRef.current;
         if (videoEl) {
-            // use the correct event name and capture the element so TypeScript knows it's not null
             videoEl.onloadedmetadata = () => {
                 tl.to(videoEl, {
                     currentTime: videoEl.duration,
@@ -108,11 +107,6 @@ const Hero = () => {
                     muted
                     playsInline
                     preload="auto"
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                    }}
                 />
 
 
